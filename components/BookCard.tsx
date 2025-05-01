@@ -22,7 +22,7 @@ function BookCard({id, title, genre, colour, cover, isLoanBook = false}: Book) {
                     <div className={"book-loaned"}>
                         <Image src={"/icons/calendar.svg"} alt={"Calendar"} height={18} width={18}
                                className={"object-contain"}/>
-                        <p className={"text-light-100"}>
+                        <p className={"text-light-200"}>
                             11 days left to return
                         </p>
                     </div>
