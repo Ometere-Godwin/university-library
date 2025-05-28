@@ -1,27 +1,49 @@
-"use client"
-
-import React from 'react'
+"use client";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import React from "react";
 import Link from "next/link";
-import {usePathname} from "next/navigation";
-import {cn} from "@/lib/utils";
+import { usePathname } from "next/navigation";
+import { cn, getInitials } from "@/lib/utils";
 import Image from "next/image";
+import { Session } from "next-auth";
 
-function Header() {
-    const pathname = usePathname()
-    return (
-        <header className={"flex justify-between items-center my-10 gap-5"}>
-            <Link href={"/"}>
-                <Image src={"/icons/bookwise.png"} alt={"Bookwise Logo"} width={40} height={40}/>
-            </Link>
-            <ul className={"flex flex-row items-center gap-8"}>
-                <li>
-                    <Link href={"/library"}
-                    className={cn("text-base cursor-pointer capitalize", pathname === "/library" ? "text-light-200" : "text-light-100")}>Library</Link>
-                </li>
-            </ul>
+function Header({ session }: { session: Session }) {
+  const pathname = usePathname();
+  return (
+    <header className={"flex justify-between items-center my-10 gap-5"}>
+      <Link href={"/"}>
+        <Image
+          src={"/icons/bookwise.png"}
+          alt={"Bookwise Logo"}
+          width={40}
+          height={40}
+        />
+      </Link>
+      <ul className={"flex flex-row items-center gap-8"}>
+        <li>
+          <Link
+            href={"/library"}
+            className={cn(
+              "text-base cursor-pointer capitalize",
+              pathname === "/library" ? "text-light-200" : "text-light-100"
+            )}
+          >
+            Library
+          </Link>
+        </li>
 
-        </header>
-    )
+        <li>
+          <Link href={"/my-profile"}>
+            <Avatar>
+              <AvatarFallback className="bg-amber-100">
+                {getInitials(session?.user?.name || "IN")}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+        </li>
+      </ul>
+    </header>
+  );
 }
 
-export default Header
+export default Header;

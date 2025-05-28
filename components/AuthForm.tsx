@@ -6,16 +6,21 @@ import {Button} from "@/components/ui/button"
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form"
 import {Input} from "@/components/ui/input"
 import Link from "next/link";
-import { FIELD_NAMES } from "@/constants";
+import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
+import ImageUpload from "./ImageUpload";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface AuthFormProps<T extends FieldValues> {
     schema: ZodType<T>;
     defaultValues: T;
     onSubmit: (data: T) => Promise<{ success: boolean; error?: string }>;
     type: "SIGN_IN" | "SIGN_UP";
-}
+};
 
 const AuthForm = <T extends FieldValues>({type, schema, defaultValues, onSubmit,} : AuthFormProps<T>) => {
+    const router = useRouter();
+
     const isSignIn = type === "SIGN_IN";
     // 1. Define your form.
     const form: UseFormReturn<T> = useForm({
@@ -25,6 +30,28 @@ const AuthForm = <T extends FieldValues>({type, schema, defaultValues, onSubmit,
 
     // 2. Define a submit handler.
     const handleSubmit: SubmitHandler<T> = async (data) => {
+        const result = await onSubmit(data);
+
+        if (result.success){
+            toast("Success", {
+                description: isSignIn ? "You have successfully signed in" : "You have successfully signed up",
+                // variant: "destructive",
+                // action: {
+                //   label: "Retry",
+                //   onClick: () => console.log("Retry"),
+                // },
+              });
+              router.push("/");
+        }else{
+            toast(`Error ${isSignIn ? "Signing In" : "Signing Up"}`, {
+                description: result.error ?? "Something went wrong",
+                // variant: "destructive",
+                // action: {
+                //   label: "Retry",
+                //   onClick: () => console.log("Retry"),
+                // },
+            });
+        }
     };
 
     return (
@@ -46,18 +73,24 @@ const AuthForm = <T extends FieldValues>({type, schema, defaultValues, onSubmit,
                                 {FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}
                             </FormLabel>
                             <FormControl>
-                                <Input placeholder="shadcn" {...field} />
+                                {field.name === "universityCard" ? (
+                                    <ImageUpload onFileChange ={field.onChange}/>
+                                ) : (
+                                    <Input required type = {FIELD_TYPES[field.name as keyof typeof FIELD_TYPES]} {...field} className="form-input"/>
+                                )}
                             </FormControl>
-                            <FormDescription>
+                            {/* <FormDescription>
                                 This is your public display name.
-                            </FormDescription>
+                            </FormDescription> */}
                             <FormMessage/>
                         </FormItem>
                     )}
                 />
                 ))}
                 
-                <Button type="submit">Submit</Button>
+                <Button type="submit" className="form-btn">
+                    {isSignIn ? "Sign In" : "Sign up"}
+                </Button>
             </form>
         </Form>
         <p className="text-center text-base font-semibold">
